@@ -53,6 +53,12 @@ button:disabled{cursor:default}
 #app{max-width:860px;margin:0 auto;padding:calc(8px + env(safe-area-inset-top,0)) var(--gut) calc(24px + env(safe-area-inset-bottom,0))}
 .barra{display:flex;justify-content:space-between;align-items:center;min-height:44px}
 .marchio{font-weight:900;font-stretch:125%;font-size:14px}
+.bar-sx{display:flex;align-items:center;gap:8px}
+.viste{display:flex}
+.viste button{height:44px;font-size:14px;font-weight:800;font-stretch:75%}
+.viste span{display:block;padding:5px 7px;border:1px solid var(--inchiostro)}
+.viste button+button span{border-left:0}
+.viste button[aria-pressed="true"] span{background:var(--inchiostro);color:var(--carta)}
 .nav{display:flex;align-items:center}
 .nav button{min-width:44px;height:44px;font-weight:700}
 .nav .freccia{font-size:24px;line-height:1}
@@ -98,6 +104,24 @@ button:disabled{cursor:default}
 .passato .fascia.INSIEME{background:linear-gradient(90deg,var(--fil-p) 0 5px,var(--ins-p) 5px calc(100% - 5px),var(--gio-p) calc(100% - 5px))}
 .aiuto{margin:12px 0 0;color:var(--tenue);font-size:15px}
 
+/* La settimana: sul telefono un giorno per riga, così le note si leggono */
+#sett{border-left:1px solid var(--inchiostro);border-top:1px solid var(--inchiostro)}
+#sett.attesa .rigo{opacity:.4}
+.s-testa{display:grid;grid-template-columns:52px 1fr 1fr;border-right:1px solid var(--inchiostro);border-bottom:1px solid var(--inchiostro)}
+.s-testa span{padding:5px 9px;font-size:13px;font-weight:700}
+.rigo{display:grid;grid-template-columns:52px minmax(0,1fr);width:100%;min-height:68px;text-align:left;border-right:1px solid var(--inchiostro);border-bottom:1px solid var(--inchiostro)}
+.rigo:focus-visible{outline-offset:-3px}
+.r-data{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1px}
+.r-g{font-size:13px;font-weight:600}
+.r-n{display:flex;align-items:center;justify-content:center;width:30px;height:30px;border-radius:50%;font-size:21px;font-weight:800}
+.rigo.oggi .r-n{background:var(--inchiostro);color:var(--carta);font-size:16px}
+.rigo.passato .r-data{color:var(--tenue)}
+.r-fasce{display:flex;gap:1px;min-width:0}
+#sett .fascia{flex:1 1 0;min-width:0;flex-direction:column;align-items:flex-start;justify-content:center;gap:1px;padding:6px 9px;font-size:15px;font-stretch:100%;text-align:left}
+#sett .fascia.INSIEME{padding-left:12px}
+#sett .fascia .pt{display:none}
+#sett .fascia .testo{display:-webkit-box;-webkit-box-orient:vertical;-webkit-line-clamp:2;overflow:hidden;max-width:100%;font-size:13px;font-weight:500;line-height:1.15;white-space:normal;overflow-wrap:anywhere}
+
 /* Il foglio del giorno */
 #foglio{position:fixed;inset:auto 0 0 0;margin:0 auto;width:100%;max-width:480px;max-height:92dvh;border:0;border-top:2px solid var(--inchiostro);padding:0;background:var(--carta);color:var(--inchiostro);overflow:auto}
 #foglio[open]{animation:sale .18s ease-out}
@@ -133,6 +157,7 @@ button:disabled{cursor:default}
 .f-due{display:grid;grid-template-columns:1fr 1.4fr;gap:8px}
 .f-no{height:54px;border:1px solid var(--inchiostro);font-weight:700}
 
+@media (max-width:379px){.marchio{display:none}}
 @media (max-width:379px){
   .fascia{font-size:10px;letter-spacing:0}
   .fascia.INSIEME{background:linear-gradient(90deg,var(--fil) 0 3px,var(--ins) 3px calc(100% - 3px),var(--gio) calc(100% - 3px))}
@@ -151,6 +176,15 @@ button:disabled{cursor:default}
   .fascia .testo{display:block;max-width:100%;font-size:12px;font-weight:500;line-height:1.15;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
   .num{font-size:15px;padding-left:6px}
   #foglio{inset:0;margin:auto;height:fit-content;border:2px solid var(--inchiostro)}
+  .s-testa{display:none}
+  #sett{display:grid;grid-template-columns:repeat(7,minmax(0,1fr))}
+  .rigo{display:flex;flex-direction:column;min-height:440px}
+  .r-data{flex-direction:row;justify-content:flex-start;gap:6px;padding:8px}
+  .r-g{font-size:15px}
+  .r-n{font-size:24px}
+  .r-fasce{flex:1;flex-direction:column}
+  #sett .fascia{padding:10px;justify-content:flex-start}
+  #sett .fascia .testo{-webkit-line-clamp:7}
 }
 @media (prefers-reduced-motion:reduce){#foglio[open]{animation:none}}
 </style>
@@ -172,7 +206,13 @@ button:disabled{cursor:default}
 <div id="app" hidden>
   <header>
     <div class="barra">
-      <span class="marchio">STUDIO</span>
+      <div class="bar-sx">
+        <span class="marchio">STUDIO</span>
+        <div class="viste" role="group" aria-label="Vista">
+          <button id="v-mese" type="button" aria-pressed="true"><span>Mese</span></button>
+          <button id="v-sett" type="button" aria-pressed="false"><span>Settimana</span></button>
+        </div>
+      </div>
       <div class="nav">
         <button id="oggi" type="button">Oggi</button>
         <button id="prec" class="freccia" type="button" aria-label="Mese precedente">‹</button>
@@ -187,8 +227,9 @@ button:disabled{cursor:default}
     </ul>
   </header>
   <div id="avviso" role="status" hidden><span id="avviso-t"></span><button id="riprova" type="button">Riprova</button></div>
-  <div class="settimana" aria-hidden="true"><span>Lun</span><span>Mar</span><span>Mer</span><span>Gio</span><span>Ven</span><span>Sab</span><span>Dom</span></div>
+  <div class="settimana" id="intest" aria-hidden="true"><span>Lun</span><span>Mar</span><span>Mer</span><span>Gio</span><span>Ven</span><span>Sab</span><span>Dom</span></div>
   <div id="griglia"></div>
+  <div id="sett" hidden></div>
   <p class="aiuto">Tocca un giorno per segnarlo.</p>
 </div>
 
@@ -268,7 +309,13 @@ button:disabled{cursor:default}
   }
 
   let token = memoria.leggi();
+  const isoD = (d) => isoDi(d.getFullYear(), d.getMonth(), d.getDate());
+  const piuGiorni = (d, n) => new Date(d.getFullYear(), d.getMonth(), d.getDate() + n);
+  const lunediDi = (d) => piuGiorni(d, -((d.getDay() + 6) % 7));
+  const K_VISTA = "studio-vista";
   let vista = (() => { const t = adesso(); return { a: t.a, m: t.m }; })();
+  let sett = lunediDi(new Date());
+  let modo = (() => { try { return localStorage.getItem(K_VISTA) === "settimana" ? "settimana" : "mese"; } catch { return "mese"; } })();
   let turni = new Map();
   let caricato = false;
   let giro = 0;
@@ -313,14 +360,13 @@ button:disabled{cursor:default}
   function apriApp() {
     $("porta").hidden = true;
     $("app").hidden = false;
-    cambiaMese(0);
+    ricomincia();
   }
 
   /* ---- Il mese ---- */
-  const limiti = () => ({
-    dal: isoDi(vista.a, vista.m, 1),
-    al: isoDi(vista.a, vista.m, new Date(vista.a, vista.m + 1, 0).getDate()),
-  });
+  const limiti = () => modo === "settimana"
+    ? { dal: isoD(sett), al: isoD(piuGiorni(sett, 6)) }
+    : { dal: isoDi(vista.a, vista.m, 1), al: isoDi(vista.a, vista.m, new Date(vista.a, vista.m + 1, 0).getDate()) };
 
   function avviso(testo) {
     $("avviso").hidden = !testo;
@@ -349,13 +395,45 @@ button:disabled{cursor:default}
     }
   }
 
-  function cambiaMese(delta) {
-    const d = new Date(vista.a, vista.m + delta, 1);
-    vista = { a: d.getFullYear(), m: d.getMonth() };
+  function ricomincia() {
     turni = new Map();
     caricato = false;
     disegna();
     carica();
+  }
+
+  function sposta(delta) {
+    if (modo === "settimana") {
+      sett = piuGiorni(sett, delta * 7);
+    } else {
+      const d = new Date(vista.a, vista.m + delta, 1);
+      vista = { a: d.getFullYear(), m: d.getMonth() };
+    }
+    ricomincia();
+  }
+
+  function vaiAOggi() {
+    const o = new Date();
+    vista = { a: o.getFullYear(), m: o.getMonth() };
+    sett = lunediDi(o);
+    ricomincia();
+  }
+
+  /* Passando da una vista all'altra si resta nello stesso periodo. */
+  function cambiaModo(nuovo) {
+    if (nuovo === modo) return;
+    const o = new Date();
+    if (nuovo === "settimana") {
+      const meseCorrente = o.getFullYear() === vista.a && o.getMonth() === vista.m;
+      sett = lunediDi(meseCorrente ? o : new Date(vista.a, vista.m, 1));
+    } else {
+      const contieneOggi = isoD(sett) <= isoD(o) && isoD(o) <= isoD(piuGiorni(sett, 6));
+      const rif = contieneOggi ? o : piuGiorni(sett, 3);
+      vista = { a: rif.getFullYear(), m: rif.getMonth() };
+    }
+    modo = nuovo;
+    try { localStorage.setItem(K_VISTA, modo); } catch {}
+    ricomincia();
   }
 
   const leggi = (iso, meta) => turni.get(`${iso}|${meta}`) || { chi: null, nota: "" };
@@ -368,37 +446,80 @@ button:disabled{cursor:default}
 
   function descrivi(t) { return t.chi ? (t.chi === "INSIEME" ? "insieme" : t.chi) + (t.nota ? `, nota: ${t.nota}` : "") : "libera"; }
 
-  function disegna() {
+  function contenutoGiorno(iso, d) {
+    const mat = leggi(iso, "mattina"), pom = leggi(iso, "pomeriggio");
+    const fasce = mat.chi && mat.chi === pom.chi
+      ? fasciaHtml({ chi: mat.chi, nota: [mat.nota, pom.nota].filter(Boolean).join(" / ") })
+      : fasciaHtml(mat) + fasciaHtml(pom);
+    const et = `${su(GIORNI[d.getDay()])} ${d.getDate()} ${MESI[d.getMonth()]}: mattina ${descrivi(mat)}, pomeriggio ${descrivi(pom)}`;
+    return { fasce, et: esc(et) };
+  }
+  const statoGiorno = (iso, isoOggi) => (iso === isoOggi ? "oggi" : iso < isoOggi ? "passato" : "");
+
+  function disegnaMese(isoOggi) {
     const { a, m } = vista;
-    const t = adesso();
-    const isoOggi = isoDi(t.a, t.m, t.g);
     $("mese").textContent = `${MESI[m].slice(0, 3).toUpperCase()}/${String(a).slice(2)}`;
     $("mese").setAttribute("aria-label", `${su(MESI[m])} ${a}`);
-    $("oggi").style.visibility = a === t.a && m === t.m ? "hidden" : "visible";
-
     const vuote = (new Date(a, m, 1).getDay() + 6) % 7;
     const tot = new Date(a, m + 1, 0).getDate();
     const finali = (7 - ((vuote + tot) % 7)) % 7;
     let h = `<div class="casella"></div>`.repeat(vuote);
     for (let g = 1; g <= tot; g++) {
       const iso = isoDi(a, m, g);
-      const mat = leggi(iso, "mattina"), pom = leggi(iso, "pomeriggio");
-      const uniti = mat.chi && mat.chi === pom.chi;
-      let fasce;
-      if (uniti) {
-        const nota = [mat.nota, pom.nota].filter(Boolean).join(" / ");
-        fasce = fasciaHtml({ chi: mat.chi, nota });
-      } else {
-        fasce = fasciaHtml(mat) + fasciaHtml(pom);
-      }
-      const cls = ["giorno", iso === isoOggi ? "oggi" : "", iso < isoOggi ? "passato" : ""].filter(Boolean).join(" ");
-      const dow = GIORNI[new Date(a, m, g).getDay()];
-      const et = `${su(dow)} ${g} ${MESI[m]}: mattina ${descrivi(mat)}, pomeriggio ${descrivi(pom)}`;
-      h += `<button type="button" class="${cls}" data-iso="${iso}" aria-label="${esc(et)}"><span class="num"><b>${g}</b></span><span class="fasce">${fasce}</span></button>`;
+      const { fasce, et } = contenutoGiorno(iso, new Date(a, m, g));
+      h += `<button type="button" class="giorno ${statoGiorno(iso, isoOggi)}" data-iso="${iso}" aria-label="${et}"><span class="num"><b>${g}</b></span><span class="fasce">${fasce}</span></button>`;
     }
     h += `<div class="casella"></div>`.repeat(finali);
     $("griglia").innerHTML = h;
     $("griglia").classList.toggle("attesa", !caricato);
+  }
+
+  function disegnaSettimana(isoOggi) {
+    const fine = piuGiorni(sett, 6);
+    const stessoMese = sett.getMonth() === fine.getMonth();
+    $("mese").textContent = stessoMese
+      ? `${due(sett.getDate())}–${due(fine.getDate())}/${due(fine.getMonth() + 1)}`
+      : `${due(sett.getDate())}/${due(sett.getMonth() + 1)}–${due(fine.getDate())}/${due(fine.getMonth() + 1)}`;
+    $("mese").setAttribute("aria-label", `Settimana dal ${sett.getDate()} ${MESI[sett.getMonth()]} al ${fine.getDate()} ${MESI[fine.getMonth()]}`);
+    let h = `<div class="s-testa" aria-hidden="true"><span></span><span>Mattina</span><span>Pomeriggio</span></div>`;
+    for (let n = 0; n < 7; n++) {
+      const d = piuGiorni(sett, n);
+      const iso = isoD(d);
+      const { fasce, et } = contenutoGiorno(iso, d);
+      h += `<button type="button" class="rigo ${statoGiorno(iso, isoOggi)}" data-iso="${iso}" aria-label="${et}"><span class="r-data"><span class="r-g">${su(GIORNI[d.getDay()].slice(0, 3))}</span><b class="r-n">${d.getDate()}</b></span><span class="r-fasce">${fasce}</span></button>`;
+    }
+    $("sett").innerHTML = h;
+    $("sett").classList.toggle("attesa", !caricato);
+  }
+
+  /* La data della settimana è più lunga del mese: la dimensione si calcola perché riempia la riga senza uscire. */
+  function adattaTitolo() {
+    const h = $("mese");
+    h.style.fontSize = "";
+    if (modo !== "settimana" || !h.clientWidth) return;
+    const vero = h.textContent;
+    const base = parseFloat(getComputedStyle(h).fontSize);
+    const larghezza = (t) => { h.textContent = t; const r = document.createRange(); r.selectNodeContents(h); return r.getBoundingClientRect().width; };
+    const massima = Math.max(larghezza("28–28/28"), larghezza(vero));
+    h.textContent = vero;
+    h.style.fontSize = `${Math.min(base, (base * h.clientWidth / massima) * 0.98)}px`;
+  }
+
+  function disegna() {
+    const t = adesso();
+    const isoOggi = isoDi(t.a, t.m, t.g);
+    const settimana = modo === "settimana";
+    $("griglia").hidden = settimana;
+    $("intest").hidden = settimana;
+    $("sett").hidden = !settimana;
+    $("v-mese").setAttribute("aria-pressed", !settimana);
+    $("v-sett").setAttribute("aria-pressed", settimana);
+    $("prec").setAttribute("aria-label", settimana ? "Settimana precedente" : "Mese precedente");
+    $("succ").setAttribute("aria-label", settimana ? "Settimana successiva" : "Mese successivo");
+    const sulPresente = settimana ? isoD(sett) === isoD(lunediDi(new Date())) : vista.a === t.a && vista.m === t.m;
+    $("oggi").style.visibility = sulPresente ? "hidden" : "visible";
+    if (settimana) disegnaSettimana(isoOggi); else disegnaMese(isoOggi);
+    adattaTitolo();
   }
 
   /* ---- Il foglio del giorno ---- */
@@ -506,12 +627,20 @@ button:disabled{cursor:default}
   /* ---- Collegamenti ---- */
   costruisciRighe();
   $("p-form").addEventListener("submit", entra);
-  $("prec").addEventListener("click", () => cambiaMese(-1));
-  $("succ").addEventListener("click", () => cambiaMese(1));
-  $("oggi").addEventListener("click", () => { const t = adesso(); cambiaMese((t.a - vista.a) * 12 + t.m - vista.m); });
+  $("prec").addEventListener("click", () => sposta(-1));
+  $("succ").addEventListener("click", () => sposta(1));
+  $("oggi").addEventListener("click", vaiAOggi);
+  $("v-mese").addEventListener("click", () => cambiaModo("mese"));
+  $("v-sett").addEventListener("click", () => cambiaModo("settimana"));
+  window.addEventListener("resize", adattaTitolo);
+  document.fonts?.ready.then(adattaTitolo);
   $("riprova").addEventListener("click", carica);
   $("griglia").addEventListener("click", (e) => {
     const b = e.target.closest(".giorno");
+    if (b && caricato) apriFoglio(b.dataset.iso);
+  });
+  $("sett").addEventListener("click", (e) => {
+    const b = e.target.closest(".rigo");
     if (b && caricato) apriFoglio(b.dataset.iso);
   });
   $("f-righe").addEventListener("click", (e) => {
