@@ -1,0 +1,544 @@
+<!doctype html>
+<html lang="it">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>STUDIO</title>
+<meta name="robots" content="noindex,nofollow">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" href="icons/icon-192.png">
+<link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="STUDIO">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="theme-color" content="#F1E3D9">
+<meta name="color-scheme" content="light only">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@62..125,100..900&display=swap">
+<style>
+/* STUDIO: un planner da muro stampato a due inchiostri su carta rosata.
+   FIL è l'inchiostro blu, GIO quello rosso, INSIEME è la sovrastampa dei due.
+   I giorni vuoti sono carta quadrettata: appena una mezza giornata è segnata diventa un blocco pieno. */
+:root{
+  --carta:#F1E3D9; --inchiostro:#141110; --fil:#2447D6; --gio:#D93015; --ins:#2A1233;
+  --fil-p:#959DD8; --gio-p:#E69281; --ins-p:#97858E;
+  --quadretto:rgba(20,17,16,.09); --tenue:rgba(20,17,16,.6); --gut:12px;
+  color-scheme:light;
+}
+*{box-sizing:border-box}
+[hidden]{display:none!important}
+html,body{margin:0;background:var(--carta);color:var(--inchiostro);font-family:Archivo,-apple-system,BlinkMacSystemFont,sans-serif;font-size:16px;line-height:1.35;-webkit-text-size-adjust:100%;-webkit-tap-highlight-color:transparent}
+button,input{font:inherit;color:inherit}
+button{cursor:pointer;touch-action:manipulation;background:none;border:0;padding:0}
+button:disabled{cursor:default}
+:focus-visible{outline:2px solid var(--inchiostro);outline-offset:2px}
+.nascosto{position:absolute;width:1px;height:1px;overflow:hidden;clip-path:inset(50%);opacity:0}
+
+/* La porta: password */
+#porta{min-height:100dvh;max-width:420px;margin:0 auto;padding:calc(40px + env(safe-area-inset-top,0)) 24px 32px;display:flex;flex-direction:column;justify-content:center}
+.venn{display:flex;margin-bottom:28px}
+.venn i{width:58%;aspect-ratio:1;border-radius:50%;mix-blend-mode:multiply}
+.venn i:first-child{background:var(--fil)}
+.venn i:last-child{background:var(--gio);margin-left:-16%}
+#porta h1{font-size:min(calc((100vw - 48px)/5.05),74px);font-stretch:125%;font-weight:900;line-height:.9;letter-spacing:-.025em;margin:0 0 32px}
+#porta label{display:block;font-weight:600;margin-bottom:4px}
+#p-pass{display:block;width:100%;height:50px;background:none;border:0;border-bottom:2px solid var(--inchiostro);border-radius:0;font-size:20px;padding:0;outline-offset:4px}
+#p-entra{display:block;width:100%;height:54px;margin-top:22px;background:var(--inchiostro);color:var(--carta);font-weight:800;font-size:17px}
+#p-entra:disabled{opacity:.55}
+#p-err{min-height:22px;margin:12px 0 0;color:var(--gio);font-weight:600}
+
+/* Il mese */
+#app{max-width:860px;margin:0 auto;padding:calc(8px + env(safe-area-inset-top,0)) var(--gut) calc(24px + env(safe-area-inset-bottom,0))}
+.barra{display:flex;justify-content:space-between;align-items:center;min-height:44px}
+.marchio{font-weight:900;font-stretch:125%;font-size:14px}
+.nav{display:flex;align-items:center}
+.nav button{min-width:44px;height:44px;font-weight:700}
+.nav .freccia{font-size:24px;line-height:1}
+#oggi{padding:0 10px;font-size:15px;text-decoration:underline;text-underline-offset:3px}
+#mese{margin:2px 0 10px;font-size:min(calc((100vw - 2*var(--gut))/4.95),160px);font-stretch:125%;font-weight:900;line-height:.86;letter-spacing:-.03em;white-space:nowrap}
+.legenda{list-style:none;display:flex;gap:18px;margin:0 0 12px;padding:0;font-weight:700;font-size:15px}
+.legenda li{display:flex;align-items:center;gap:6px}
+.legenda i{width:14px;height:14px;border-radius:50%;display:block}
+.legenda .l-fil{background:var(--fil)}
+.legenda .l-gio{background:var(--gio)}
+.legenda .sovra{display:flex;width:auto;height:auto;border-radius:0}
+.legenda .sovra b{width:14px;height:14px;border-radius:50%;mix-blend-mode:multiply}
+.legenda .sovra b:first-child{background:var(--fil)}
+.legenda .sovra b:last-child{background:var(--gio);margin-left:-6px}
+#avviso{display:flex;justify-content:space-between;align-items:center;gap:12px;margin:0 0 10px;padding:8px 10px;background:var(--inchiostro);color:var(--carta);font-size:15px}
+#avviso button{font-weight:800;text-decoration:underline;min-height:32px;white-space:nowrap}
+
+.settimana,#griglia{display:grid;grid-template-columns:repeat(7,minmax(0,1fr))}
+.settimana{border-left:1px solid var(--inchiostro);border-top:1px solid var(--inchiostro)}
+.settimana span{padding:5px 0;text-align:center;font-size:13px;font-weight:700;border-right:1px solid var(--inchiostro)}
+#griglia{border-left:1px solid var(--inchiostro);border-top:1px solid var(--inchiostro)}
+#griglia.attesa .giorno{opacity:.4}
+.casella,.giorno{min-height:84px;border-right:1px solid var(--inchiostro);border-bottom:1px solid var(--inchiostro)}
+.giorno{display:flex;flex-direction:column;width:100%;text-align:left;min-width:0}
+.giorno:focus-visible{outline-offset:-3px}
+.num{height:26px;display:flex;align-items:center;padding-left:4px;font-size:14px;font-weight:700;font-variant-numeric:tabular-nums}
+.oggi .num b{display:flex;align-items:center;justify-content:center;width:22px;height:22px;border-radius:50%;background:var(--inchiostro);color:var(--carta);font-weight:800;font-size:13px}
+.num b{font-weight:inherit}
+.fasce{flex:1;display:flex;flex-direction:column;gap:1px}
+.fascia{position:relative;flex:1;min-height:28px;display:flex;align-items:center;justify-content:center;gap:4px;color:#fff;font-size:11px;font-weight:800;font-stretch:75%;letter-spacing:.01em;overflow:hidden;
+  background-color:transparent}
+.fascia.vuota{background-image:linear-gradient(var(--quadretto) 1px,transparent 1px),linear-gradient(90deg,var(--quadretto) 1px,transparent 1px);background-size:7px 7px}
+.fascia.FIL{background:var(--fil)}
+.fascia.GIO{background:var(--gio)}
+.fascia.INSIEME{background:linear-gradient(90deg,var(--fil) 0 5px,var(--ins) 5px calc(100% - 5px),var(--gio) calc(100% - 5px))}
+.fascia .pt{position:absolute;top:3px;right:7px;width:5px;height:5px;border-radius:50%;background:currentColor}
+.fascia .testo{display:none}
+.passato .num{color:var(--tenue)}
+.passato .fascia{color:var(--inchiostro)}
+.passato .fascia.vuota{opacity:.5}
+.passato .fascia.FIL{background:var(--fil-p)}
+.passato .fascia.GIO{background:var(--gio-p)}
+.passato .fascia.INSIEME{background:linear-gradient(90deg,var(--fil-p) 0 5px,var(--ins-p) 5px calc(100% - 5px),var(--gio-p) calc(100% - 5px))}
+.aiuto{margin:12px 0 0;color:var(--tenue);font-size:15px}
+
+/* Il foglio del giorno */
+#foglio{position:fixed;inset:auto 0 0 0;margin:0 auto;width:100%;max-width:480px;max-height:92dvh;border:0;border-top:2px solid var(--inchiostro);padding:0;background:var(--carta);color:var(--inchiostro);overflow:auto}
+#foglio[open]{animation:sale .18s ease-out}
+@keyframes sale{from{transform:translateY(24px);opacity:0}to{transform:none;opacity:1}}
+#foglio::backdrop{background:rgba(20,17,16,.5)}
+.dentro{padding:14px 16px calc(16px + env(safe-area-inset-bottom,0))}
+.f-testa{display:flex;justify-content:space-between;align-items:flex-start;gap:8px;margin-bottom:6px}
+#f-tit{margin:0;font-size:25px;font-stretch:125%;font-weight:900;line-height:1.02;letter-spacing:-.02em;outline:0}
+#f-chiudi{flex:none;width:44px;height:44px;margin:-8px -10px 0 0;font-size:28px;line-height:1}
+#f-msg{margin:6px 0 2px;padding:8px 10px;background:var(--inchiostro);color:var(--carta);font-size:15px}
+.riga{display:grid;grid-template-columns:90px minmax(0,1fr);align-items:center;column-gap:6px;padding:10px 0 0}
+.et{font-weight:700;font-size:15px;line-height:1.12}
+.tondi{display:grid;grid-template-columns:repeat(4,minmax(0,56px));justify-content:space-between;gap:4px}
+.tondo{aspect-ratio:1;border-radius:50%;border:2px solid currentColor;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:800;font-stretch:75%;min-width:0}
+.tondo.FIL{color:var(--fil)}
+.tondo.GIO{color:var(--gio)}
+.tondo.INSIEME{color:var(--ins);font-size:11px}
+.tondo.LIBERA{border-width:1px;border-style:dashed;font-weight:700}
+.tondo.on{color:#fff;border-color:transparent}
+.tondo.FIL.on{background:var(--fil)}
+.tondo.GIO.on{background:var(--gio)}
+.tondo.INSIEME.on{background:linear-gradient(90deg,var(--fil) 0 16%,var(--ins) 16% 84%,var(--gio) 84%)}
+.tondo.LIBERA.on{color:var(--inchiostro);border-color:var(--inchiostro);border-style:solid;background:var(--quadretto)}
+.nota{grid-column:2;width:100%;height:40px;margin-top:4px;background:none;border:0;border-bottom:1px solid var(--inchiostro);border-radius:0;padding:0;font-size:16px}
+.nota::placeholder{color:var(--tenue)}
+.f-sep{height:1px;background:var(--inchiostro);margin:12px 0 2px}
+#f-salva,.f-si{height:54px;background:var(--inchiostro);color:var(--carta);font-weight:800;font-size:17px;width:100%}
+#f-azioni{margin-top:16px}
+#f-salva:disabled,.f-si:disabled{opacity:.35}
+#f-conferma{margin-top:14px;padding-top:12px;border-top:2px solid var(--inchiostro)}
+#f-conferma p{margin:0 0 4px;font-weight:700}
+#f-conferma ul{margin:0 0 12px;padding:0;list-style:none}
+.f-due{display:grid;grid-template-columns:1fr 1.4fr;gap:8px}
+.f-no{height:54px;border:1px solid var(--inchiostro);font-weight:700}
+
+@media (max-width:379px){
+  .fascia{font-size:10px;letter-spacing:0}
+  .fascia.INSIEME{background:linear-gradient(90deg,var(--fil) 0 3px,var(--ins) 3px calc(100% - 3px),var(--gio) calc(100% - 3px))}
+  .passato .fascia.INSIEME{background:linear-gradient(90deg,var(--fil-p) 0 3px,var(--ins-p) 3px calc(100% - 3px),var(--gio-p) calc(100% - 3px))}
+  .tondo{font-size:11px}
+  .tondo.INSIEME{font-size:9.5px}
+}
+@media (min-width:720px){
+  :root{--gut:24px}
+  #app{padding-top:20px}
+  .casella,.giorno{min-height:124px}
+  .fascia{min-height:44px;font-size:13px;font-stretch:100%;flex-direction:column;gap:0;padding:2px 10px;text-align:center}
+  .fascia.INSIEME{background:linear-gradient(90deg,var(--fil) 0 7px,var(--ins) 7px calc(100% - 7px),var(--gio) calc(100% - 7px))}
+  .passato .fascia.INSIEME{background:linear-gradient(90deg,var(--fil-p) 0 7px,var(--ins-p) 7px calc(100% - 7px),var(--gio-p) calc(100% - 7px))}
+  .fascia .pt{display:none}
+  .fascia .testo{display:block;max-width:100%;font-size:12px;font-weight:500;line-height:1.15;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .num{font-size:15px;padding-left:6px}
+  #foglio{inset:0;margin:auto;height:fit-content;border:2px solid var(--inchiostro)}
+}
+@media (prefers-reduced-motion:reduce){#foglio[open]{animation:none}}
+</style>
+</head>
+<body>
+
+<main id="porta" hidden>
+  <div class="venn" aria-hidden="true"><i></i><i></i></div>
+  <h1>STUDIO</h1>
+  <form id="p-form">
+    <input class="nascosto" type="text" name="username" autocomplete="username" value="studio" tabindex="-1" aria-hidden="true">
+    <label for="p-pass">Password</label>
+    <input id="p-pass" type="password" name="password" autocomplete="current-password" required>
+    <button id="p-entra" type="submit">Entra</button>
+    <p id="p-err" role="alert"></p>
+  </form>
+</main>
+
+<div id="app" hidden>
+  <header>
+    <div class="barra">
+      <span class="marchio">STUDIO</span>
+      <div class="nav">
+        <button id="oggi" type="button">Oggi</button>
+        <button id="prec" class="freccia" type="button" aria-label="Mese precedente">‹</button>
+        <button id="succ" class="freccia" type="button" aria-label="Mese successivo">›</button>
+      </div>
+    </div>
+    <h1 id="mese"></h1>
+    <ul class="legenda">
+      <li><i class="l-fil"></i>FIL</li>
+      <li><i class="l-gio"></i>GIO</li>
+      <li><i class="sovra"><b></b><b></b></i>INSIEME</li>
+    </ul>
+  </header>
+  <div id="avviso" role="status" hidden><span id="avviso-t"></span><button id="riprova" type="button">Riprova</button></div>
+  <div class="settimana" aria-hidden="true"><span>Lun</span><span>Mar</span><span>Mer</span><span>Gio</span><span>Ven</span><span>Sab</span><span>Dom</span></div>
+  <div id="griglia"></div>
+  <p class="aiuto">Tocca un giorno per segnarlo.</p>
+</div>
+
+<dialog id="foglio" aria-labelledby="f-tit">
+  <div class="dentro">
+    <div class="f-testa">
+      <h2 id="f-tit" tabindex="-1" autofocus></h2>
+      <button id="f-chiudi" type="button" aria-label="Chiudi">×</button>
+    </div>
+    <div id="f-msg" role="alert" hidden></div>
+    <div id="f-righe"></div>
+    <div id="f-azioni"><button id="f-salva" type="button" disabled>Salva</button></div>
+    <div id="f-conferma" hidden>
+      <p>Stai cambiando una mezza giornata già segnata</p>
+      <ul id="f-cambi"></ul>
+      <div class="f-due">
+        <button class="f-no" id="f-annulla" type="button">Annulla</button>
+        <button class="f-si" id="f-sostituisci" type="button">Sostituisci</button>
+      </div>
+    </div>
+  </div>
+</dialog>
+
+<script>
+(() => {
+  /* Indirizzo e chiave pubblica del progetto: da soli non aprono nulla, senza password il database risponde solo "no". */
+  const SB_URL = "https://jwbzadaxregnukdevcrm.supabase.co";
+  const SB_KEY = "sb_publishable_UGraDoUu9WgRlj4arJhjWg_dalxkVvU";
+  const DEMO = new URLSearchParams(location.search).has("demo");
+  const K_TOKEN = "studio-lasciapassare";
+
+  const META = ["mattina", "pomeriggio"];
+  const ET_META = { mattina: "Mattina", pomeriggio: "Pomeriggio" };
+  const SCELTE = [["FIL", "FIL"], ["GIO", "GIO"], ["INSIEME", "INSIEME"], ["LIBERA", "Libera"]];
+  const MESI = ["gennaio","febbraio","marzo","aprile","maggio","giugno","luglio","agosto","settembre","ottobre","novembre","dicembre"];
+  const GIORNI = ["domenica","lunedì","martedì","mercoledì","giovedì","venerdì","sabato"];
+
+  const $ = (id) => document.getElementById(id);
+  const esc = (s) => String(s).replace(/[&<>"']/g, (c) => ({ "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;" }[c]));
+  const due = (n) => String(n).padStart(2, "0");
+  const isoDi = (a, m, g) => `${a}-${due(m + 1)}-${due(g)}`;
+  const adesso = () => { const d = new Date(); return { a: d.getFullYear(), m: d.getMonth(), g: d.getDate() }; };
+  const su = (s) => s.charAt(0).toUpperCase() + s.slice(1);
+
+  /* Il lasciapassare resta su questo dispositivo, così la password si inserisce una volta sola. */
+  const memoria = {
+    leggi() { if (DEMO) return null; try { return localStorage.getItem(K_TOKEN); } catch { return null; } },
+    scrivi(v) { if (DEMO) return; try { localStorage.setItem(K_TOKEN, v); } catch {} },
+    togli() { if (DEMO) return; try { localStorage.removeItem(K_TOKEN); } catch {} },
+  };
+
+  /* Con ?demo nell'indirizzo la pagina non contatta il database: dati finti, solo per vedere la grafica. */
+  const demo = (() => {
+    const db = new Map();
+    const t = adesso();
+    const metti = (g, meta, chi, nota = "") => db.set(`${isoDi(t.a, t.m, g)}|${meta}`, { chi, nota });
+    [[2,"FIL"],[3,"FIL"],[5,"GIO"],[9,"GIO"],[10,"INSIEME"],[13,"FIL"],[18,"GIO"],[24,"INSIEME"]].forEach(([g, c]) => { metti(g, "mattina", c); metti(g, "pomeriggio", c); });
+    metti(11, "mattina", "FIL", "mix"); metti(11, "pomeriggio", "GIO", "cliente alle 15");
+    metti(16, "pomeriggio", "INSIEME", "prove"); metti(20, "mattina", "GIO");
+    return (fn, b) => {
+      if (fn === "studio_entra") return { ok: true, token: "demo" };
+      if (fn === "studio_leggi") return { ok: true, turni: [...db].filter(([k]) => { const g = k.split("|")[0]; return g >= b.p_dal && g <= b.p_al; }).map(([k, v]) => ({ giorno: k.split("|")[0], meta: k.split("|")[1], ...v })) };
+      for (const m of b.p_modifiche) { const k = `${m.giorno}|${m.meta}`; if (m.chi) db.set(k, { chi: m.chi, nota: m.nota || "" }); else db.delete(k); }
+      return { ok: true };
+    };
+  })();
+
+  async function api(fn, corpo) {
+    if (DEMO) return demo(fn, corpo);
+    const r = await fetch(`${SB_URL}/rest/v1/rpc/${fn}`, {
+      method: "POST",
+      headers: { apikey: SB_KEY, "Content-Type": "application/json" },
+      body: JSON.stringify(corpo),
+    });
+    if (!r.ok) throw new Error("Risposta " + r.status);
+    return r.json();
+  }
+
+  let token = memoria.leggi();
+  let vista = (() => { const t = adesso(); return { a: t.a, m: t.m }; })();
+  let turni = new Map();
+  let caricato = false;
+  let giro = 0;
+
+  /* ---- La porta ---- */
+  function mostraPorta(msg = "") {
+    $("app").hidden = true;
+    $("porta").hidden = false;
+    $("p-err").textContent = msg;
+  }
+  async function entra(ev) {
+    ev.preventDefault();
+    const bottone = $("p-entra");
+    bottone.disabled = true;
+    $("p-err").textContent = "";
+    try {
+      const r = await api("studio_entra", { p_pass: $("p-pass").value });
+      if (r.ok) {
+        token = r.token;
+        memoria.scrivi(token);
+        $("p-pass").value = "";
+        apriApp();
+      } else if (r.motivo === "bloccato") {
+        const n = r.minuti;
+        $("p-err").textContent = `Troppi tentativi sbagliati. Riprova tra ${n} ${n === 1 ? "minuto" : "minuti"}.`;
+      } else if (r.motivo === "non_impostata") {
+        $("p-err").textContent = "La password non è ancora stata impostata sul database.";
+      } else {
+        $("p-err").textContent = "Password sbagliata.";
+      }
+    } catch {
+      $("p-err").textContent = "Connessione assente. Controlla la rete e riprova.";
+    }
+    bottone.disabled = false;
+  }
+  function sessioneScaduta() {
+    token = null;
+    memoria.togli();
+    if ($("foglio").open) $("foglio").close();
+    mostraPorta("Serve di nuovo la password.");
+  }
+  function apriApp() {
+    $("porta").hidden = true;
+    $("app").hidden = false;
+    cambiaMese(0);
+  }
+
+  /* ---- Il mese ---- */
+  const limiti = () => ({
+    dal: isoDi(vista.a, vista.m, 1),
+    al: isoDi(vista.a, vista.m, new Date(vista.a, vista.m + 1, 0).getDate()),
+  });
+
+  function avviso(testo) {
+    $("avviso").hidden = !testo;
+    $("avviso-t").textContent = testo || "";
+  }
+
+  /* Prima che i dati arrivino i giorni restano spenti: un mese vuoto per un problema di rete sembrerebbe tutto libero. */
+  async function carica() {
+    if (!token) return;
+    const n = ++giro;
+    const { dal, al } = limiti();
+    try {
+      const r = await api("studio_leggi", { p_token: token, p_dal: dal, p_al: al });
+      if (n !== giro) return;
+      if (!r.ok) {
+        if (r.motivo === "sessione") return sessioneScaduta();
+        throw new Error(r.motivo);
+      }
+      turni = new Map(r.turni.map((t) => [`${t.giorno}|${t.meta}`, { chi: t.chi, nota: t.nota || "" }]));
+      caricato = true;
+      avviso("");
+      disegna();
+    } catch {
+      if (n !== giro) return;
+      avviso(caricato ? "Non riesco ad aggiornare: potresti vedere dati vecchi." : "Non riesco a leggere il calendario. Controlla la connessione.");
+    }
+  }
+
+  function cambiaMese(delta) {
+    const d = new Date(vista.a, vista.m + delta, 1);
+    vista = { a: d.getFullYear(), m: d.getMonth() };
+    turni = new Map();
+    caricato = false;
+    disegna();
+    carica();
+  }
+
+  const leggi = (iso, meta) => turni.get(`${iso}|${meta}`) || { chi: null, nota: "" };
+
+  function fasciaHtml(t) {
+    if (!t.chi) return `<span class="fascia vuota"></span>`;
+    const nota = t.nota ? `<i class="pt"></i><span class="testo">${esc(t.nota)}</span>` : "";
+    return `<span class="fascia ${t.chi}">${t.chi}${nota}</span>`;
+  }
+
+  function descrivi(t) { return t.chi ? (t.chi === "INSIEME" ? "insieme" : t.chi) + (t.nota ? `, nota: ${t.nota}` : "") : "libera"; }
+
+  function disegna() {
+    const { a, m } = vista;
+    const t = adesso();
+    const isoOggi = isoDi(t.a, t.m, t.g);
+    $("mese").textContent = `${MESI[m].slice(0, 3).toUpperCase()}/${String(a).slice(2)}`;
+    $("mese").setAttribute("aria-label", `${su(MESI[m])} ${a}`);
+    $("oggi").style.visibility = a === t.a && m === t.m ? "hidden" : "visible";
+
+    const vuote = (new Date(a, m, 1).getDay() + 6) % 7;
+    const tot = new Date(a, m + 1, 0).getDate();
+    const finali = (7 - ((vuote + tot) % 7)) % 7;
+    let h = `<div class="casella"></div>`.repeat(vuote);
+    for (let g = 1; g <= tot; g++) {
+      const iso = isoDi(a, m, g);
+      const mat = leggi(iso, "mattina"), pom = leggi(iso, "pomeriggio");
+      const uniti = mat.chi && mat.chi === pom.chi;
+      let fasce;
+      if (uniti) {
+        const nota = [mat.nota, pom.nota].filter(Boolean).join(" / ");
+        fasce = fasciaHtml({ chi: mat.chi, nota });
+      } else {
+        fasce = fasciaHtml(mat) + fasciaHtml(pom);
+      }
+      const cls = ["giorno", iso === isoOggi ? "oggi" : "", iso < isoOggi ? "passato" : ""].filter(Boolean).join(" ");
+      const dow = GIORNI[new Date(a, m, g).getDay()];
+      const et = `${su(dow)} ${g} ${MESI[m]}: mattina ${descrivi(mat)}, pomeriggio ${descrivi(pom)}`;
+      h += `<button type="button" class="${cls}" data-iso="${iso}" aria-label="${esc(et)}"><span class="num"><b>${g}</b></span><span class="fasce">${fasce}</span></button>`;
+    }
+    h += `<div class="casella"></div>`.repeat(finali);
+    $("griglia").innerHTML = h;
+    $("griglia").classList.toggle("attesa", !caricato);
+  }
+
+  /* ---- Il foglio del giorno ---- */
+  let F = null;
+
+  function costruisciRighe() {
+    const tondi = (riga) => SCELTE.map(([v, et]) => `<button type="button" class="tondo ${v}" data-riga="${riga}" data-v="${v}" aria-pressed="false">${et}</button>`).join("");
+    $("f-righe").innerHTML =
+      `<div class="riga"><span class="et">Tutto il giorno</span><div class="tondi" role="group" aria-label="Tutto il giorno">${tondi("tutto")}</div></div><div class="f-sep"></div>` +
+      META.map((m) => `<div class="riga"><span class="et">${ET_META[m]}</span><div class="tondi" role="group" aria-label="${ET_META[m]}">${tondi(m)}</div><input class="nota" data-meta="${m}" maxlength="120" placeholder="Nota facoltativa" aria-label="Nota ${ET_META[m].toLowerCase()}" autocomplete="off"></div>`).join("");
+  }
+
+  const modifiche = () => META.filter((m) => F.orig[m].chi !== F.cur[m].chi || F.orig[m].nota !== F.cur[m].nota.trim());
+
+  function aggiornaFoglio() {
+    const { mattina: a, pomeriggio: b } = F.cur;
+    const tutto = a.chi === b.chi ? (a.chi || "LIBERA") : null;
+    document.querySelectorAll("#f-righe .tondo").forEach((el) => {
+      const r = el.dataset.riga;
+      const scelto = r === "tutto" ? tutto : (F.cur[r].chi || "LIBERA");
+      const on = el.dataset.v === scelto;
+      el.classList.toggle("on", on);
+      el.setAttribute("aria-pressed", on);
+    });
+    document.querySelectorAll("#f-righe .nota").forEach((el) => {
+      const c = F.cur[el.dataset.meta];
+      el.hidden = !c.chi;
+      if (el.value !== c.nota) el.value = c.nota;
+    });
+    $("f-salva").disabled = modifiche().length === 0;
+  }
+
+  function messaggioFoglio(t) { $("f-msg").hidden = !t; $("f-msg").textContent = t || ""; }
+  function mostraConferma(si) {
+    $("f-conferma").hidden = !si;
+    $("f-azioni").hidden = si;
+  }
+
+  function apriFoglio(iso, msg = "") {
+    const [a, m, g] = iso.split("-").map(Number);
+    const copia = (meta) => { const t = leggi(iso, meta); return { chi: t.chi, nota: t.nota }; };
+    F = { iso, orig: { mattina: copia("mattina"), pomeriggio: copia("pomeriggio") }, cur: { mattina: copia("mattina"), pomeriggio: copia("pomeriggio") }, occupato: false };
+    $("f-tit").textContent = `${su(GIORNI[new Date(a, m - 1, g).getDay()])} ${g} ${MESI[m - 1]}`;
+    messaggioFoglio(msg);
+    mostraConferma(false);
+    aggiornaFoglio();
+    if (!$("foglio").open) $("foglio").showModal();
+  }
+
+  function scegli(riga, v) {
+    const chi = v === "LIBERA" ? null : v;
+    (riga === "tutto" ? META : [riga]).forEach((m) => {
+      F.cur[m].chi = chi;
+      if (!chi) F.cur[m].nota = "";
+    });
+    mostraConferma(false);
+    aggiornaFoglio();
+  }
+
+  const nomeStato = (chi) => chi || "libera";
+
+  function chiediSalvataggio() {
+    const cambi = modifiche().filter((m) => F.orig[m].chi && F.orig[m].chi !== F.cur[m].chi);
+    if (cambi.length === 0) return salva();
+    $("f-cambi").innerHTML = cambi.map((m) => `<li>${ET_META[m]}: da ${F.orig[m].chi} a ${nomeStato(F.cur[m].chi)}</li>`).join("");
+    mostraConferma(true);
+    $("f-sostituisci").focus();
+  }
+
+  async function salva() {
+    if (F.occupato) return;
+    const elenco = modifiche();
+    if (elenco.length === 0) return;
+    F.occupato = true;
+    $("f-salva").disabled = true;
+    $("f-sostituisci").disabled = true;
+    messaggioFoglio("");
+    const iso = F.iso;
+    const p = elenco.map((m) => ({ giorno: iso, meta: m, chi: F.cur[m].chi, nota: F.cur[m].nota.trim(), atteso_chi: F.orig[m].chi, atteso_nota: F.orig[m].nota }));
+    try {
+      const r = await api("studio_segna", { p_token: token, p_modifiche: p });
+      if (r.ok) {
+        p.forEach((x) => { if (x.chi) turni.set(`${iso}|${x.meta}`, { chi: x.chi, nota: x.nota }); else turni.delete(`${iso}|${x.meta}`); });
+        giro++;
+        $("foglio").close();
+        disegna();
+        carica();
+      } else if (r.motivo === "sessione") {
+        sessioneScaduta();
+      } else if (r.motivo === "conflitto") {
+        await carica();
+        if ($("foglio").open) apriFoglio(iso, "Nel frattempo questo giorno è cambiato. Controlla e salva di nuovo.");
+      } else {
+        messaggioFoglio("Non salvato: dati non validi. Riprova.");
+      }
+    } catch {
+      messaggioFoglio("Non salvato: controlla la connessione e riprova.");
+      mostraConferma(false);
+    }
+    if (F) { F.occupato = false; }
+    $("f-sostituisci").disabled = false;
+    if ($("foglio").open && F) $("f-salva").disabled = modifiche().length === 0;
+  }
+
+  /* ---- Collegamenti ---- */
+  costruisciRighe();
+  $("p-form").addEventListener("submit", entra);
+  $("prec").addEventListener("click", () => cambiaMese(-1));
+  $("succ").addEventListener("click", () => cambiaMese(1));
+  $("oggi").addEventListener("click", () => { const t = adesso(); cambiaMese((t.a - vista.a) * 12 + t.m - vista.m); });
+  $("riprova").addEventListener("click", carica);
+  $("griglia").addEventListener("click", (e) => {
+    const b = e.target.closest(".giorno");
+    if (b && caricato) apriFoglio(b.dataset.iso);
+  });
+  $("f-righe").addEventListener("click", (e) => {
+    const b = e.target.closest(".tondo");
+    if (b) scegli(b.dataset.riga, b.dataset.v);
+  });
+  $("f-righe").addEventListener("input", (e) => {
+    if (!e.target.classList.contains("nota")) return;
+    F.cur[e.target.dataset.meta].nota = e.target.value;
+    mostraConferma(false);
+    $("f-salva").disabled = modifiche().length === 0;
+  });
+  $("f-salva").addEventListener("click", chiediSalvataggio);
+  $("f-annulla").addEventListener("click", () => mostraConferma(false));
+  $("f-sostituisci").addEventListener("click", salva);
+  $("f-chiudi").addEventListener("click", () => $("foglio").close());
+  $("foglio").addEventListener("click", (e) => { if (e.target === $("foglio")) $("foglio").close(); });
+
+  /* Quello che segna uno compare all'altro: all'apertura, al ritorno sulla pagina e ogni 30 secondi. */
+  const seVisibile = () => { if (!document.hidden && token && !$("app").hidden) carica(); };
+  document.addEventListener("visibilitychange", seVisibile);
+  window.addEventListener("online", seVisibile);
+  window.addEventListener("pageshow", (e) => { if (e.persisted) seVisibile(); });
+  setInterval(seVisibile, 30000);
+
+  if (token) apriApp(); else mostraPorta();
+})();
+</script>
+</body>
+</html>
