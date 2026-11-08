@@ -50,10 +50,10 @@ button:disabled{cursor:default}
 #p-err{min-height:22px;margin:12px 0 0;color:var(--gio);font-weight:600}
 
 /* Il mese */
-#app{max-width:860px;margin:0 auto;padding:calc(8px + env(safe-area-inset-top,0)) var(--gut) calc(24px + env(safe-area-inset-bottom,0))}
+#app{max-width:860px;margin:0 auto;padding:calc(8px + env(safe-area-inset-top,0)) var(--gut) calc(84px + env(safe-area-inset-bottom,0))}
 .barra{display:grid;grid-template-columns:1fr auto;align-items:center;min-height:44px}
 .marchio{font-weight:900;font-stretch:125%;font-size:14px}
-.viste{grid-column:1/-1;grid-row:2;display:grid;grid-template-columns:repeat(3,1fr);margin-bottom:8px}
+.viste{grid-column:1/-1;grid-row:2;display:grid;grid-template-columns:repeat(2,1fr);margin-bottom:8px}
 .viste button{height:44px;font-size:15px;font-weight:800}
 .viste span{display:flex;align-items:center;justify-content:center;height:36px;border:1px solid var(--inchiostro)}
 .viste button+button span{border-left:0}
@@ -121,9 +121,34 @@ button:disabled{cursor:default}
 #sett .fascia .pt{display:none}
 #sett .fascia .testo{display:-webkit-box;-webkit-box-orient:vertical;-webkit-line-clamp:2;overflow:hidden;max-width:100%;font-size:13px;font-weight:500;line-height:1.15;white-space:normal;overflow-wrap:anywhere}
 
+/* Appunti e Acquisti: la barra ferma in basso */
+#basso{position:fixed;left:0;right:0;bottom:0;z-index:3;background:var(--carta);border-top:1px solid var(--inchiostro);padding:4px var(--gut) calc(4px + env(safe-area-inset-bottom,0))}
+#basso .viste{max-width:812px;margin:0 auto}
+
 /* Gli appunti: la colonna con le caselline dei planner */
 #a-testo,.a-campo{display:block;width:100%;background-color:transparent;background-image:linear-gradient(var(--quadretto) 1px,transparent 1px),linear-gradient(90deg,var(--quadretto) 1px,transparent 1px);background-size:7px 7px;border:1px solid var(--inchiostro);border-radius:0;padding:9px 10px;font-size:16px;line-height:1.3;resize:none;field-sizing:content;min-height:68px;max-height:220px}
-#a-testo::placeholder{color:var(--tenue)}
+#a-testo::placeholder,.v-campo::placeholder{color:var(--tenue)}
+.v-campo{display:block;width:100%;min-height:44px;background-color:transparent;background-image:linear-gradient(var(--quadretto) 1px,transparent 1px),linear-gradient(90deg,var(--quadretto) 1px,transparent 1px);background-size:7px 7px;border:1px solid var(--inchiostro);border-radius:0;padding:9px 10px;font-size:16px;line-height:1.3}
+textarea.v-campo{resize:none;field-sizing:content;min-height:68px;max-height:220px}
+#v-form .a-bot .v-campo{flex:1;min-width:0}
+#v-lista{margin-top:18px}
+#v-lista:not(:empty),#v-comprati:not(:empty){border-top:1px solid var(--inchiostro)}
+#v-vuoto{margin:22px 0 0;color:var(--tenue)}
+#v-comprati-box{margin-top:18px}
+#v-comprati-box summary{cursor:pointer;min-height:44px;display:flex;align-items:center;font-weight:800}
+.v-testa{display:flex;justify-content:space-between;align-items:baseline;gap:12px;width:100%;text-align:left}
+.v-cosa{font-size:17px;font-weight:700;line-height:1.2;overflow-wrap:anywhere}
+.v-prezzo{flex:none;font-size:15px;font-weight:700}
+.ap.fatto .v-cosa,.ap.fatto .v-prezzo{text-decoration:line-through;color:var(--tenue)}
+.v-nota{margin:3px 0 0;white-space:pre-wrap;overflow-wrap:anywhere;font-size:14px;line-height:1.3;color:var(--tenue)}
+.v-link{display:flex;flex-wrap:wrap;gap:0 6px}
+.a-link{display:flex;align-items:center;height:44px;text-decoration:none;color:var(--inchiostro)}
+.a-link span{display:block;padding:4px 11px;border:1px solid var(--inchiostro);border-radius:999px;font-size:13px;font-weight:700}
+.v-edit label{display:block;margin-bottom:8px;font-size:14px;font-weight:700}
+.v-edit label .v-campo{margin-top:3px;font-weight:400}
+.v-edit .a-bot{justify-content:space-between}
+.v-dx{display:flex;gap:6px}
+.v-err{margin:0 0 8px;color:var(--gio);font-size:14px;font-weight:600}
 .a-bot{display:flex;justify-content:space-between;align-items:center;gap:10px;margin-top:8px}
 .a-firma{display:flex;align-items:center;gap:6px;font-weight:700;font-size:15px}
 .a-firma .tondo{width:44px;height:44px;aspect-ratio:auto}
@@ -214,6 +239,7 @@ button:disabled{cursor:default}
   #sett .fascia .testo{-webkit-line-clamp:7}
   .barra{grid-template-columns:1fr minmax(320px,auto) 1fr;margin-bottom:6px}
   .viste{grid-column:2;grid-row:1;margin-bottom:0}
+  #basso .viste{max-width:320px}
 }
 @media (prefers-reduced-motion:reduce){#foglio[open]{animation:none}}
 </style>
@@ -239,7 +265,6 @@ button:disabled{cursor:default}
       <div class="viste" role="group" aria-label="Vista">
         <button id="v-mese" type="button" aria-pressed="true"><span>Mese</span></button>
         <button id="v-sett" type="button" aria-pressed="false"><span>Settimana</span></button>
-        <button id="v-app" type="button" aria-pressed="false"><span>Appunti</span></button>
       </div>
       <div class="nav" id="nav">
         <button id="oggi" type="button">Oggi</button>
@@ -277,7 +302,28 @@ button:disabled{cursor:default}
       <ul id="a-fatti" class="a-elenco"></ul>
     </details>
   </section>
+  <section id="acquisti" hidden>
+    <form id="v-form">
+      <input id="v-cosa" class="v-campo" maxlength="120" placeholder="Cosa serve?" aria-label="Cosa serve" autocomplete="off">
+      <div class="a-bot">
+        <input id="v-prezzo" class="v-campo" maxlength="40" placeholder="Prezzo (facoltativo)" aria-label="Prezzo" autocomplete="off">
+        <button id="v-aggiungi" class="a-si" type="submit" disabled>Aggiungi</button>
+      </div>
+    </form>
+    <p id="v-vuoto" hidden>Nessun acquisto da fare. Scrivi qui sopra cosa serve.</p>
+    <ul id="v-lista" class="a-elenco"></ul>
+    <details id="v-comprati-box" hidden>
+      <summary>Comprati (<span id="v-comprati-n">0</span>)</summary>
+      <ul id="v-comprati" class="a-elenco"></ul>
+    </details>
+  </section>
   <p class="aiuto" id="aiuto">Tocca un giorno per segnarlo.</p>
+  <div id="basso">
+    <div class="viste" role="group" aria-label="Sezioni">
+      <button id="v-app" type="button" aria-pressed="false"><span>Appunti</span></button>
+      <button id="v-acq" type="button" aria-pressed="false"><span>Acquisti</span></button>
+    </div>
+  </div>
 </div>
 
 <dialog id="foglio" aria-labelledby="f-tit">
@@ -343,7 +389,25 @@ button:disabled{cursor:default}
       { id: 2, testo: "Sabato arriva il tecnico del condizionatore, serve qualcuno in studio entro le 11", chi: "FIL", fatto: false, versione: 1, creato: ora },
       { id: 1, testo: "Pagare l'affitto di novembre", chi: "GIO", fatto: true, versione: 1, creato: ora },
     ];
+    let spese = [
+      { id: 1, cosa: "Frigorifero", prezzo: "€150", nota: "", link: [{ nome: "Opzione 1", url: "https://example.com/1" }, { nome: "Opzione 2", url: "https://example.com/2" }], comprato: false, versione: 1 },
+      { id: 2, cosa: "Stand tastiere", prezzo: "€150-250", nota: "Quanta differenza c'è davvero tra i due?", link: [{ nome: "JASPERS", url: "https://example.com/3" }, { nome: "ROADWORX", url: "https://example.com/4" }], comprato: false, versione: 1 },
+      { id: 3, cosa: "Piante", prezzo: "", nota: "", link: ["A", "B", "C", "D"].map((nome) => ({ nome, url: "https://example.com/" + nome })), comprato: false, versione: 1 },
+      { id: 4, cosa: "Un bel microfono", prezzo: "👀", nota: "", link: [], comprato: false, versione: 1 },
+      { id: 5, cosa: "Apribottiglie", prezzo: "", nota: "", link: [], comprato: true, versione: 1 },
+    ];
+    let progS = 5;
     return (fn, b) => {
+      if (fn === "studio_acquisti_leggi") return { ok: true, acquisti: spese.map((n) => ({ ...n })) };
+      if (fn === "studio_acquisti_scrivi") { spese.push({ id: ++progS, cosa: b.p_cosa, prezzo: b.p_prezzo || "", nota: "", link: [], comprato: false, versione: 1 }); return { ok: true }; }
+      if (fn === "studio_acquisti_cambia") {
+        const n = spese.find((x) => x.id === b.p_id);
+        if (b.p_azione === "modifica") Object.assign(n, { cosa: b.p_cosa, prezzo: b.p_prezzo, nota: b.p_nota, link: b.p_link });
+        if (b.p_azione === "comprato") n.comprato = true;
+        if (b.p_azione === "riapri") n.comprato = false;
+        if (b.p_azione === "elimina") spese = spese.filter((x) => x !== n);
+        return { ok: true };
+      }
       if (fn === "studio_entra") return { ok: true, token: "demo" };
       if (fn === "studio_appunti_leggi") return { ok: true, appunti: note.map((n) => ({ ...n })) };
       if (fn === "studio_appunti_scrivi") { note.unshift({ id: ++prog, testo: b.p_testo, chi: b.p_chi, fatto: false, versione: 1, creato: new Date().toISOString() }); return { ok: true }; }
@@ -387,6 +451,11 @@ button:disabled{cursor:default}
   let apInvio = false;
   let apModifica = null;
   let apElimina = null;
+  let acquisti = [];
+  let acqCaricati = false;
+  let acqInvio = false;
+  let acqModifica = null;
+  const calendario = (m) => m === "mese" || m === "settimana";
   let chiScrive = (() => { try { const v = localStorage.getItem(K_CHI); return v === "FIL" || v === "GIO" ? v : null; } catch { return null; } })();
   let turni = new Map();
   let caricato = false;
@@ -449,6 +518,7 @@ button:disabled{cursor:default}
   async function carica() {
     if (!token) return;
     if (modo === "appunti") return caricaAppunti();
+    if (modo === "acquisti") return caricaAcquisti();
     const n = ++giro;
     const { dal, al } = limiti();
     try {
@@ -497,7 +567,8 @@ button:disabled{cursor:default}
     if (nuovo === modo) return;
     apModifica = null;
     apElimina = null;
-    if (nuovo !== "appunti") {
+    acqModifica = null;
+    if (calendario(nuovo)) {
       const o = new Date();
       if (nuovo === "settimana" && ultimoCal !== nuovo) {
         const meseCorrente = o.getFullYear() === vista.a && o.getMonth() === vista.m;
@@ -586,22 +657,25 @@ button:disabled{cursor:default}
   function disegna() {
     const t = adesso();
     const isoOggi = isoDi(t.a, t.m, t.g);
-    const settimana = modo === "settimana", mese = modo === "mese", ap = modo === "appunti";
+    const settimana = modo === "settimana", mese = modo === "mese", ap = modo === "appunti", acq = modo === "acquisti";
+    const sezione = ap || acq;
     $("griglia").hidden = !mese;
     $("intest").hidden = !mese;
     $("sett").hidden = !settimana;
     $("appunti").hidden = !ap;
-    $("legenda").hidden = ap;
-    $("aiuto").hidden = ap;
-    $("nav").style.visibility = ap ? "hidden" : "visible";
+    $("acquisti").hidden = !acq;
+    $("legenda").hidden = sezione;
+    $("aiuto").hidden = sezione;
+    $("nav").style.visibility = sezione ? "hidden" : "visible";
     $("v-mese").setAttribute("aria-pressed", mese);
     $("v-sett").setAttribute("aria-pressed", settimana);
     $("v-app").setAttribute("aria-pressed", ap);
-    if (ap) {
+    $("v-acq").setAttribute("aria-pressed", acq);
+    if (sezione) {
       $("oggi").style.visibility = "hidden";
-      $("mese").textContent = "APPUNTI";
-      $("mese").setAttribute("aria-label", "Appunti");
-      disegnaAppunti();
+      $("mese").textContent = ap ? "APPUNTI" : "ACQUISTI";
+      $("mese").setAttribute("aria-label", ap ? "Appunti" : "Acquisti");
+      if (ap) disegnaAppunti(); else disegnaAcquisti();
     } else {
       $("prec").setAttribute("aria-label", settimana ? "Settimana precedente" : "Mese precedente");
       $("succ").setAttribute("aria-label", settimana ? "Settimana successiva" : "Mese successivo");
@@ -687,7 +761,7 @@ button:disabled{cursor:default}
     aggiornaComposer();
   }
 
-  /* Risponde true se la modifica è andata a buon fine. */
+  /* Risponde true se la modifica è andata a buon fine, "rete" se manca la connessione. */
   async function cambiaAppunto(a, azione, testo = null) {
     try {
       const r = await api("studio_appunti_cambia", { p_token: token, p_id: a.id, p_azione: azione, p_testo: testo, p_versione: a.versione });
@@ -696,8 +770,8 @@ button:disabled{cursor:default}
       await caricaAppunti();
       avviso(r.motivo === "conflitto" ? "Nel frattempo questo appunto è cambiato. Controllalo e, se serve, riprova." : "Modifica non salvata: il testo non è valido.");
     } catch {
-      await caricaAppunti();
       avviso("Modifica non salvata: controlla la connessione e riprova.");
+      return "rete";
     }
     return false;
   }
@@ -723,17 +797,19 @@ button:disabled{cursor:default}
     } else if (az === "salva") {
       const testo = li.querySelector(".a-campo").value.trim();
       if (!testo) return;
-      const fatto = await cambiaAppunto(a, "testo", testo);
+      const esito = await cambiaAppunto(a, "testo", testo);
+      if (esito === "rete") return;
       apModifica = null;
       document.querySelector(".a-edit")?.remove();
       disegnaAppunti();
-      if (fatto) await caricaAppunti();
+      if (esito === true) await caricaAppunti();
     } else if (az === "spunta") {
       const azione = a.fatto ? "riapri" : "fatto";
       a.fatto = !a.fatto;
       giro++;
       disegnaAppunti();
-      if (await cambiaAppunto(a, azione)) await caricaAppunti();
+      if ((await cambiaAppunto(a, azione)) === "rete") { a.fatto = !a.fatto; disegnaAppunti(); }
+      else await caricaAppunti();
     } else if (az === "elimina") {
       if (apElimina !== a.id) {
         apElimina = a.id;
@@ -741,7 +817,164 @@ button:disabled{cursor:default}
         return;
       }
       apElimina = null;
-      if (await cambiaAppunto(a, "elimina")) await caricaAppunti();
+      if ((await cambiaAppunto(a, "elimina")) === true) await caricaAppunti();
+    }
+  }
+
+  /* ---- Gli acquisti ---- */
+  const hrefSicuro = (u) => /^https?:\/\//i.test(u);
+
+  /* Una riga per link: l'eventuale testo prima dell'indirizzo diventa il nome del bottoncino. */
+  function leggiLink(testo) {
+    const out = [];
+    for (const riga of testo.split("\n")) {
+      if (!riga.trim()) continue;
+      const m = riga.match(/https?:\/\/[^\s<>"]+/i);
+      if (!m) return null;
+      const nome = riga.slice(0, m.index).replace(/[\s:–-]+$/, "").trim().slice(0, 30);
+      out.push({ nome: nome || `Link ${out.length + 1}`, url: m[0] });
+    }
+    return out.length > 8 ? null : out;
+  }
+
+  function rigaAcquisto(v) {
+    if (v.id === acqModifica) {
+      const link = v.link.map((l) => `${l.nome} ${l.url}`).join("\n");
+      return `<li class="ap" data-id="${v.id}"><div class="a-edit v-edit">
+        <label>Cosa<input class="v-campo" data-c="cosa" maxlength="120" autocomplete="off" value="${esc(v.cosa)}"></label>
+        <label>Prezzo<input class="v-campo" data-c="prezzo" maxlength="40" autocomplete="off" value="${esc(v.prezzo)}"></label>
+        <label>Nota<textarea class="v-campo" data-c="nota" maxlength="500">${esc(v.nota)}</textarea></label>
+        <label>Link, uno per riga<textarea class="v-campo" data-c="link" placeholder="Nome https://indirizzo-del-negozio">${esc(link)}</textarea></label>
+        <p class="v-err" role="alert" hidden></p>
+        <div class="a-bot"><button type="button" class="a-el" data-az="elimina">Elimina</button><span class="v-dx"><button type="button" class="a-no" data-az="annulla">Annulla</button><button type="button" class="a-si" data-az="salva">Salva</button></span></div>
+      </div></li>`;
+    }
+    const azione = v.comprato ? "Rimetti da comprare" : "Segna come comprato";
+    const prezzo = v.prezzo ? `<span class="v-prezzo">${esc(v.prezzo)}</span>` : "";
+    const nota = v.nota ? `<p class="v-nota">${esc(v.nota)}</p>` : "";
+    const bottoni = v.link.filter((l) => hrefSicuro(l.url)).map((l) => `<a class="a-link" href="${esc(l.url)}" target="_blank" rel="noopener noreferrer"><span>${esc(l.nome)}</span></a>`).join("");
+    const link = bottoni ? `<div class="v-link">${bottoni}</div>` : "";
+    return `<li class="ap${v.comprato ? " fatto" : ""}" data-id="${v.id}"><button type="button" class="spunta" data-az="spunta" aria-pressed="${v.comprato}" aria-label="${azione}: ${esc(v.cosa)}"></button><div class="a-corpo"><button type="button" class="v-testa" data-az="modifica" aria-label="Modifica ${esc(v.cosa)}"><span class="v-cosa">${esc(v.cosa)}</span>${prezzo}</button>${nota}${link}</div></li>`;
+  }
+
+  function aggiornaFormAcquisti() {
+    $("v-aggiungi").disabled = acqInvio || !$("v-cosa").value.trim();
+  }
+
+  function disegnaAcquisti() {
+    aggiornaFormAcquisti();
+    if (acqModifica !== null && acquisti.some((v) => v.id === acqModifica) && $("acquisti").querySelector(".v-edit")) return;
+    const daComprare = acquisti.filter((v) => !v.comprato), comprati = acquisti.filter((v) => v.comprato);
+    $("v-lista").innerHTML = daComprare.map(rigaAcquisto).join("");
+    $("v-comprati").innerHTML = comprati.map(rigaAcquisto).join("");
+    $("v-comprati-n").textContent = comprati.length;
+    $("v-comprati-box").hidden = comprati.length === 0;
+    $("v-vuoto").hidden = !acqCaricati || daComprare.length > 0;
+  }
+
+  async function caricaAcquisti() {
+    const n = ++giro;
+    try {
+      const r = await api("studio_acquisti_leggi", { p_token: token });
+      if (n !== giro) return;
+      if (!r.ok) {
+        if (r.motivo === "sessione") return sessioneScaduta();
+        throw new Error(r.motivo);
+      }
+      acquisti = r.acquisti;
+      acqCaricati = true;
+      avviso("");
+      if (modo === "acquisti") disegnaAcquisti();
+    } catch (e) {
+      if (n !== giro) return;
+      avviso(e.message === "Risposta 404" ? "La pagina Acquisti non è ancora attiva sul database." : "Non riesco a leggere gli acquisti. Controlla la connessione.");
+    }
+  }
+
+  async function aggiungiAcquisto(ev) {
+    ev.preventDefault();
+    const cosa = $("v-cosa").value.trim();
+    if (!cosa || acqInvio) return;
+    acqInvio = true;
+    aggiornaFormAcquisti();
+    try {
+      const r = await api("studio_acquisti_scrivi", { p_token: token, p_cosa: cosa, p_prezzo: $("v-prezzo").value.trim() });
+      if (r.ok) {
+        $("v-cosa").value = "";
+        $("v-prezzo").value = "";
+        await caricaAcquisti();
+      } else if (r.motivo === "sessione") {
+        sessioneScaduta();
+      } else {
+        avviso("Voce non salvata: il testo non è valido.");
+      }
+    } catch {
+      avviso("Voce non salvata: controlla la connessione e riprova.");
+    }
+    acqInvio = false;
+    aggiornaFormAcquisti();
+  }
+
+  async function cambiaAcquisto(v, azione, campi = {}) {
+    try {
+      const r = await api("studio_acquisti_cambia", { p_token: token, p_id: v.id, p_azione: azione, p_cosa: campi.cosa ?? null, p_prezzo: campi.prezzo ?? null, p_nota: campi.nota ?? null, p_link: campi.link ?? null, p_versione: v.versione });
+      if (r.ok) return true;
+      if (r.motivo === "sessione") { sessioneScaduta(); return false; }
+      await caricaAcquisti();
+      avviso(r.motivo === "conflitto" ? "Nel frattempo questa voce è cambiata. Controllala e, se serve, riprova." : "Modifica non salvata: controlla i campi e riprova.");
+    } catch {
+      avviso("Modifica non salvata: controlla la connessione e riprova.");
+      return "rete";
+    }
+    return false;
+  }
+
+  const chiudiEditorAcquisto = () => {
+    acqModifica = null;
+    $("acquisti").querySelector(".v-edit")?.remove();
+    disegnaAcquisti();
+  };
+
+  async function azioneAcquisto(e) {
+    const b = e.target.closest("[data-az]");
+    if (!b) return;
+    const li = b.closest(".ap");
+    const v = acquisti.find((x) => x.id === Number(li.dataset.id));
+    if (!v) return;
+    const az = b.dataset.az;
+    if (az === "modifica") {
+      acqModifica = v.id;
+      $("acquisti").querySelector(".v-edit")?.remove();
+      disegnaAcquisti();
+    } else if (az === "annulla") {
+      chiudiEditorAcquisto();
+    } else if (az === "elimina") {
+      b.textContent = "Conferma";
+      b.dataset.az = "conferma";
+    } else if (az === "conferma") {
+      const esito = await cambiaAcquisto(v, "elimina");
+      if (esito === "rete") return;
+      chiudiEditorAcquisto();
+      if (esito === true) await caricaAcquisti();
+    } else if (az === "salva") {
+      const box = li.querySelector(".v-edit");
+      const val = (c) => box.querySelector(`[data-c="${c}"]`).value.trim();
+      const errore = box.querySelector(".v-err");
+      const link = leggiLink(box.querySelector('[data-c="link"]').value);
+      errore.hidden = true;
+      if (!val("cosa")) { errore.textContent = "Scrivi cosa serve."; errore.hidden = false; return; }
+      if (link === null) { errore.textContent = "Ogni riga dei link deve contenere un indirizzo che inizia con http, massimo 8 righe."; errore.hidden = false; return; }
+      const esito = await cambiaAcquisto(v, "modifica", { cosa: val("cosa"), prezzo: val("prezzo"), nota: val("nota"), link });
+      if (esito === "rete") return;
+      chiudiEditorAcquisto();
+      if (esito === true) await caricaAcquisti();
+    } else if (az === "spunta") {
+      const azione = v.comprato ? "riapri" : "comprato";
+      v.comprato = !v.comprato;
+      giro++;
+      disegnaAcquisti();
+      if ((await cambiaAcquisto(v, azione)) === "rete") { v.comprato = !v.comprato; disegnaAcquisti(); }
+      else await caricaAcquisti();
     }
   }
 
@@ -856,6 +1089,10 @@ button:disabled{cursor:default}
   $("v-mese").addEventListener("click", () => cambiaModo("mese"));
   $("v-sett").addEventListener("click", () => cambiaModo("settimana"));
   $("v-app").addEventListener("click", () => cambiaModo("appunti"));
+  $("v-acq").addEventListener("click", () => cambiaModo("acquisti"));
+  $("v-form").addEventListener("submit", aggiungiAcquisto);
+  $("v-cosa").addEventListener("input", aggiornaFormAcquisti);
+  $("acquisti").addEventListener("click", azioneAcquisto);
   $("a-form").addEventListener("submit", aggiungiAppunto);
   $("a-testo").addEventListener("input", aggiornaComposer);
   $("appunti").addEventListener("click", azioneAppunto);
