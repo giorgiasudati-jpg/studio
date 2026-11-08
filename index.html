@@ -30,7 +30,7 @@
 *{box-sizing:border-box}
 [hidden]{display:none!important}
 html,body{margin:0;background:var(--carta);color:var(--inchiostro);font-family:Archivo,-apple-system,BlinkMacSystemFont,sans-serif;font-size:16px;line-height:1.35;-webkit-text-size-adjust:100%;-webkit-tap-highlight-color:transparent}
-button,input{font:inherit;color:inherit}
+button,input,textarea{font:inherit;color:inherit}
 button{cursor:pointer;touch-action:manipulation;background:none;border:0;padding:0}
 button:disabled{cursor:default}
 :focus-visible{outline:2px solid var(--inchiostro);outline-offset:2px}
@@ -51,15 +51,14 @@ button:disabled{cursor:default}
 
 /* Il mese */
 #app{max-width:860px;margin:0 auto;padding:calc(8px + env(safe-area-inset-top,0)) var(--gut) calc(24px + env(safe-area-inset-bottom,0))}
-.barra{display:flex;justify-content:space-between;align-items:center;min-height:44px}
+.barra{display:grid;grid-template-columns:1fr auto;align-items:center;min-height:44px}
 .marchio{font-weight:900;font-stretch:125%;font-size:14px}
-.bar-sx{display:flex;align-items:center;gap:8px}
-.viste{display:flex}
-.viste button{height:44px;font-size:14px;font-weight:800;font-stretch:75%}
-.viste span{display:block;padding:5px 7px;border:1px solid var(--inchiostro)}
+.viste{grid-column:1/-1;grid-row:2;display:grid;grid-template-columns:repeat(3,1fr);margin-bottom:8px}
+.viste button{height:44px;font-size:15px;font-weight:800}
+.viste span{display:flex;align-items:center;justify-content:center;height:36px;border:1px solid var(--inchiostro)}
 .viste button+button span{border-left:0}
 .viste button[aria-pressed="true"] span{background:var(--inchiostro);color:var(--carta)}
-.nav{display:flex;align-items:center}
+.nav{display:flex;align-items:center;justify-self:end}
 .nav button{min-width:44px;height:44px;font-weight:700}
 .nav .freccia{font-size:24px;line-height:1}
 #oggi{padding:0 10px;font-size:15px;text-decoration:underline;text-underline-offset:3px}
@@ -122,6 +121,35 @@ button:disabled{cursor:default}
 #sett .fascia .pt{display:none}
 #sett .fascia .testo{display:-webkit-box;-webkit-box-orient:vertical;-webkit-line-clamp:2;overflow:hidden;max-width:100%;font-size:13px;font-weight:500;line-height:1.15;white-space:normal;overflow-wrap:anywhere}
 
+/* Gli appunti: la colonna con le caselline dei planner */
+#a-testo,.a-campo{display:block;width:100%;background-color:transparent;background-image:linear-gradient(var(--quadretto) 1px,transparent 1px),linear-gradient(90deg,var(--quadretto) 1px,transparent 1px);background-size:7px 7px;border:1px solid var(--inchiostro);border-radius:0;padding:9px 10px;font-size:16px;line-height:1.3;resize:none;field-sizing:content;min-height:68px;max-height:220px}
+#a-testo::placeholder{color:var(--tenue)}
+.a-bot{display:flex;justify-content:space-between;align-items:center;gap:10px;margin-top:8px}
+.a-firma{display:flex;align-items:center;gap:6px;font-weight:700;font-size:15px}
+.a-firma .tondo{width:44px;height:44px;aspect-ratio:auto}
+.a-si{height:44px;padding:0 18px;background:var(--inchiostro);color:var(--carta);font-weight:800}
+.a-si:disabled{opacity:.35}
+.a-no{height:44px;padding:0 14px;border:1px solid var(--inchiostro);font-weight:700}
+#a-vuoto{margin:22px 0 0;color:var(--tenue)}
+.a-elenco{list-style:none;margin:0;padding:0}
+#a-lista{margin-top:18px}
+#a-lista:not(:empty),#a-fatti:not(:empty){border-top:1px solid var(--inchiostro)}
+.ap{display:flex;align-items:flex-start;gap:4px;padding:6px 0;border-bottom:1px solid var(--inchiostro)}
+.spunta{flex:none;width:44px;height:44px;display:flex;align-items:center;justify-content:center}
+.spunta::before{content:"";display:block;width:24px;height:24px;border-radius:50%;border:2px solid currentColor}
+.spunta.FIL{color:var(--fil)}
+.spunta.GIO{color:var(--gio)}
+.ap.fatto .spunta::before{background:currentColor}
+.a-corpo{flex:1;min-width:0;padding-top:10px}
+.a-t{display:block;width:100%;text-align:left;white-space:pre-wrap;overflow-wrap:anywhere;font-size:16px;line-height:1.3}
+.ap.fatto .a-t{text-decoration:line-through;color:var(--tenue)}
+.a-meta{display:block;margin-top:3px;font-size:13px;color:var(--tenue)}
+.a-el{flex:none;height:44px;padding:0 4px;font-size:14px;font-weight:700;text-decoration:underline;text-underline-offset:3px}
+.a-edit{flex:1;min-width:0;padding:6px 0 4px}
+.a-edit .a-bot{justify-content:flex-end}
+#a-fatti-box{margin-top:18px}
+#a-fatti-box summary{cursor:pointer;min-height:44px;display:flex;align-items:center;font-weight:800}
+
 /* Il foglio del giorno */
 #foglio{position:fixed;inset:auto 0 0 0;margin:0 auto;width:100%;max-width:480px;max-height:92dvh;border:0;border-top:2px solid var(--inchiostro);padding:0;background:var(--carta);color:var(--inchiostro);overflow:auto}
 #foglio[open]{animation:sale .18s ease-out}
@@ -157,7 +185,6 @@ button:disabled{cursor:default}
 .f-due{display:grid;grid-template-columns:1fr 1.4fr;gap:8px}
 .f-no{height:54px;border:1px solid var(--inchiostro);font-weight:700}
 
-@media (max-width:379px){.marchio{display:none}}
 @media (max-width:379px){
   .fascia{font-size:10px;letter-spacing:0}
   .fascia.INSIEME{background:linear-gradient(90deg,var(--fil) 0 3px,var(--ins) 3px calc(100% - 3px),var(--gio) calc(100% - 3px))}
@@ -185,6 +212,8 @@ button:disabled{cursor:default}
   .r-fasce{flex:1;flex-direction:column}
   #sett .fascia{padding:10px;justify-content:flex-start}
   #sett .fascia .testo{-webkit-line-clamp:7}
+  .barra{grid-template-columns:1fr minmax(320px,auto) 1fr;margin-bottom:6px}
+  .viste{grid-column:2;grid-row:1;margin-bottom:0}
 }
 @media (prefers-reduced-motion:reduce){#foglio[open]{animation:none}}
 </style>
@@ -206,21 +235,20 @@ button:disabled{cursor:default}
 <div id="app" hidden>
   <header>
     <div class="barra">
-      <div class="bar-sx">
-        <span class="marchio">STUDIO</span>
-        <div class="viste" role="group" aria-label="Vista">
-          <button id="v-mese" type="button" aria-pressed="true"><span>Mese</span></button>
-          <button id="v-sett" type="button" aria-pressed="false"><span>Settimana</span></button>
-        </div>
+      <span class="marchio">STUDIO</span>
+      <div class="viste" role="group" aria-label="Vista">
+        <button id="v-mese" type="button" aria-pressed="true"><span>Mese</span></button>
+        <button id="v-sett" type="button" aria-pressed="false"><span>Settimana</span></button>
+        <button id="v-app" type="button" aria-pressed="false"><span>Appunti</span></button>
       </div>
-      <div class="nav">
+      <div class="nav" id="nav">
         <button id="oggi" type="button">Oggi</button>
         <button id="prec" class="freccia" type="button" aria-label="Mese precedente">‹</button>
         <button id="succ" class="freccia" type="button" aria-label="Mese successivo">›</button>
       </div>
     </div>
     <h1 id="mese"></h1>
-    <ul class="legenda">
+    <ul class="legenda" id="legenda">
       <li><i class="l-fil"></i>FIL</li>
       <li><i class="l-gio"></i>GIO</li>
       <li><i class="sovra"><b></b><b></b></i>INSIEME</li>
@@ -230,7 +258,26 @@ button:disabled{cursor:default}
   <div class="settimana" id="intest" aria-hidden="true"><span>Lun</span><span>Mar</span><span>Mer</span><span>Gio</span><span>Ven</span><span>Sab</span><span>Dom</span></div>
   <div id="griglia"></div>
   <div id="sett" hidden></div>
-  <p class="aiuto">Tocca un giorno per segnarlo.</p>
+  <section id="appunti" hidden>
+    <form id="a-form">
+      <textarea id="a-testo" rows="2" maxlength="500" placeholder="Scrivi un appunto" aria-label="Nuovo appunto"></textarea>
+      <div class="a-bot">
+        <div class="a-firma" role="group" aria-label="Chi scrive">
+          <span>Chi scrive?</span>
+          <button type="button" class="tondo FIL" data-chi="FIL" aria-pressed="false">FIL</button>
+          <button type="button" class="tondo GIO" data-chi="GIO" aria-pressed="false">GIO</button>
+        </div>
+        <button id="a-aggiungi" class="a-si" type="submit" disabled>Aggiungi</button>
+      </div>
+    </form>
+    <p id="a-vuoto" hidden>Nessun appunto. Scrivi il primo qui sopra.</p>
+    <ul id="a-lista" class="a-elenco"></ul>
+    <details id="a-fatti-box" hidden>
+      <summary>Fatti (<span id="a-fatti-n">0</span>)</summary>
+      <ul id="a-fatti" class="a-elenco"></ul>
+    </details>
+  </section>
+  <p class="aiuto" id="aiuto">Tocca un giorno per segnarlo.</p>
 </div>
 
 <dialog id="foglio" aria-labelledby="f-tit">
@@ -289,8 +336,25 @@ button:disabled{cursor:default}
     [[2,"FIL"],[3,"FIL"],[5,"GIO"],[9,"GIO"],[10,"INSIEME"],[13,"FIL"],[18,"GIO"],[24,"INSIEME"]].forEach(([g, c]) => { metti(g, "mattina", c); metti(g, "pomeriggio", c); });
     metti(11, "mattina", "FIL", "mix"); metti(11, "pomeriggio", "GIO", "cliente alle 15");
     metti(16, "pomeriggio", "INSIEME", "prove"); metti(20, "mattina", "GIO");
+    let prog = 3;
+    const ora = new Date().toISOString();
+    let note = [
+      { id: 3, testo: "Cambiare la lampadina in regia", chi: "GIO", fatto: false, versione: 1, creato: ora },
+      { id: 2, testo: "Sabato arriva il tecnico del condizionatore, serve qualcuno in studio entro le 11", chi: "FIL", fatto: false, versione: 1, creato: ora },
+      { id: 1, testo: "Pagare l'affitto di novembre", chi: "GIO", fatto: true, versione: 1, creato: ora },
+    ];
     return (fn, b) => {
       if (fn === "studio_entra") return { ok: true, token: "demo" };
+      if (fn === "studio_appunti_leggi") return { ok: true, appunti: note.map((n) => ({ ...n })) };
+      if (fn === "studio_appunti_scrivi") { note.unshift({ id: ++prog, testo: b.p_testo, chi: b.p_chi, fatto: false, versione: 1, creato: new Date().toISOString() }); return { ok: true }; }
+      if (fn === "studio_appunti_cambia") {
+        const n = note.find((x) => x.id === b.p_id);
+        if (b.p_azione === "testo") n.testo = b.p_testo;
+        if (b.p_azione === "fatto") n.fatto = true;
+        if (b.p_azione === "riapri") n.fatto = false;
+        if (b.p_azione === "elimina") note = note.filter((x) => x !== n);
+        return { ok: true };
+      }
       if (fn === "studio_leggi") return { ok: true, turni: [...db].filter(([k]) => { const g = k.split("|")[0]; return g >= b.p_dal && g <= b.p_al; }).map(([k, v]) => ({ giorno: k.split("|")[0], meta: k.split("|")[1], ...v })) };
       for (const m of b.p_modifiche) { const k = `${m.giorno}|${m.meta}`; if (m.chi) db.set(k, { chi: m.chi, nota: m.nota || "" }); else db.delete(k); }
       return { ok: true };
@@ -316,6 +380,14 @@ button:disabled{cursor:default}
   let vista = (() => { const t = adesso(); return { a: t.a, m: t.m }; })();
   let sett = lunediDi(new Date());
   let modo = (() => { try { return localStorage.getItem(K_VISTA) === "settimana" ? "settimana" : "mese"; } catch { return "mese"; } })();
+  let ultimoCal = modo;
+  const K_CHI = "studio-chi";
+  let appunti = [];
+  let apCaricati = false;
+  let apInvio = false;
+  let apModifica = null;
+  let apElimina = null;
+  let chiScrive = (() => { try { const v = localStorage.getItem(K_CHI); return v === "FIL" || v === "GIO" ? v : null; } catch { return null; } })();
   let turni = new Map();
   let caricato = false;
   let giro = 0;
@@ -376,6 +448,7 @@ button:disabled{cursor:default}
   /* Prima che i dati arrivino i giorni restano spenti: un mese vuoto per un problema di rete sembrerebbe tutto libero. */
   async function carica() {
     if (!token) return;
+    if (modo === "appunti") return caricaAppunti();
     const n = ++giro;
     const { dal, al } = limiti();
     try {
@@ -419,20 +492,25 @@ button:disabled{cursor:default}
     ricomincia();
   }
 
-  /* Passando da una vista all'altra si resta nello stesso periodo. */
+  /* Passando da una vista del calendario all'altra si resta nello stesso periodo. Gli appunti non si ricordano: l'app si apre sempre sul calendario. */
   function cambiaModo(nuovo) {
     if (nuovo === modo) return;
-    const o = new Date();
-    if (nuovo === "settimana") {
-      const meseCorrente = o.getFullYear() === vista.a && o.getMonth() === vista.m;
-      sett = lunediDi(meseCorrente ? o : new Date(vista.a, vista.m, 1));
-    } else {
-      const contieneOggi = isoD(sett) <= isoD(o) && isoD(o) <= isoD(piuGiorni(sett, 6));
-      const rif = contieneOggi ? o : piuGiorni(sett, 3);
-      vista = { a: rif.getFullYear(), m: rif.getMonth() };
+    apModifica = null;
+    apElimina = null;
+    if (nuovo !== "appunti") {
+      const o = new Date();
+      if (nuovo === "settimana" && ultimoCal !== nuovo) {
+        const meseCorrente = o.getFullYear() === vista.a && o.getMonth() === vista.m;
+        sett = lunediDi(meseCorrente ? o : new Date(vista.a, vista.m, 1));
+      } else if (nuovo === "mese" && ultimoCal !== nuovo) {
+        const contieneOggi = isoD(sett) <= isoD(o) && isoD(o) <= isoD(piuGiorni(sett, 6));
+        const rif = contieneOggi ? o : piuGiorni(sett, 3);
+        vista = { a: rif.getFullYear(), m: rif.getMonth() };
+      }
+      ultimoCal = nuovo;
+      try { localStorage.setItem(K_VISTA, nuovo); } catch {}
     }
     modo = nuovo;
-    try { localStorage.setItem(K_VISTA, modo); } catch {}
     ricomincia();
   }
 
@@ -496,11 +574,11 @@ button:disabled{cursor:default}
   function adattaTitolo() {
     const h = $("mese");
     h.style.fontSize = "";
-    if (modo !== "settimana" || !h.clientWidth) return;
+    if (modo === "mese" || !h.clientWidth) return;
     const vero = h.textContent;
     const base = parseFloat(getComputedStyle(h).fontSize);
     const larghezza = (t) => { h.textContent = t; const r = document.createRange(); r.selectNodeContents(h); return r.getBoundingClientRect().width; };
-    const massima = Math.max(larghezza("28–28/28"), larghezza(vero));
+    const massima = modo === "settimana" ? Math.max(larghezza("28–28/28"), larghezza(vero)) : larghezza(vero);
     h.textContent = vero;
     h.style.fontSize = `${Math.min(base, (base * h.clientWidth / massima) * 0.98)}px`;
   }
@@ -508,18 +586,163 @@ button:disabled{cursor:default}
   function disegna() {
     const t = adesso();
     const isoOggi = isoDi(t.a, t.m, t.g);
-    const settimana = modo === "settimana";
-    $("griglia").hidden = settimana;
-    $("intest").hidden = settimana;
+    const settimana = modo === "settimana", mese = modo === "mese", ap = modo === "appunti";
+    $("griglia").hidden = !mese;
+    $("intest").hidden = !mese;
     $("sett").hidden = !settimana;
-    $("v-mese").setAttribute("aria-pressed", !settimana);
+    $("appunti").hidden = !ap;
+    $("legenda").hidden = ap;
+    $("aiuto").hidden = ap;
+    $("nav").style.visibility = ap ? "hidden" : "visible";
+    $("v-mese").setAttribute("aria-pressed", mese);
     $("v-sett").setAttribute("aria-pressed", settimana);
-    $("prec").setAttribute("aria-label", settimana ? "Settimana precedente" : "Mese precedente");
-    $("succ").setAttribute("aria-label", settimana ? "Settimana successiva" : "Mese successivo");
-    const sulPresente = settimana ? isoD(sett) === isoD(lunediDi(new Date())) : vista.a === t.a && vista.m === t.m;
-    $("oggi").style.visibility = sulPresente ? "hidden" : "visible";
-    if (settimana) disegnaSettimana(isoOggi); else disegnaMese(isoOggi);
+    $("v-app").setAttribute("aria-pressed", ap);
+    if (ap) {
+      $("oggi").style.visibility = "hidden";
+      $("mese").textContent = "APPUNTI";
+      $("mese").setAttribute("aria-label", "Appunti");
+      disegnaAppunti();
+    } else {
+      $("prec").setAttribute("aria-label", settimana ? "Settimana precedente" : "Mese precedente");
+      $("succ").setAttribute("aria-label", settimana ? "Settimana successiva" : "Mese successivo");
+      const sulPresente = settimana ? isoD(sett) === isoD(lunediDi(new Date())) : vista.a === t.a && vista.m === t.m;
+      $("oggi").style.visibility = sulPresente ? "hidden" : "visible";
+      if (settimana) disegnaSettimana(isoOggi); else disegnaMese(isoOggi);
+    }
     adattaTitolo();
+  }
+
+  /* ---- Gli appunti ---- */
+  const dataBreve = (v) => { const d = new Date(v); return `${d.getDate()} ${MESI[d.getMonth()].slice(0, 3)}`; };
+
+  function rigaAppunto(a) {
+    if (a.id === apModifica) {
+      return `<li class="ap" data-id="${a.id}"><span class="spunta ${a.chi}" aria-hidden="true"></span><div class="a-edit"><textarea class="a-campo" maxlength="500" aria-label="Modifica appunto">${esc(a.testo)}</textarea><div class="a-bot"><button type="button" class="a-no" data-az="annulla">Annulla</button><button type="button" class="a-si" data-az="salva">Salva</button></div></div></li>`;
+    }
+    const azione = a.fatto ? "Rimetti in lista" : "Segna come fatto";
+    const elimina = a.fatto ? `<button type="button" class="a-el" data-az="elimina">${apElimina === a.id ? "Conferma" : "Elimina"}</button>` : "";
+    return `<li class="ap${a.fatto ? " fatto" : ""}" data-id="${a.id}"><button type="button" class="spunta ${a.chi}" data-az="spunta" aria-pressed="${a.fatto}" aria-label="${azione}: ${esc(a.testo)}"></button><div class="a-corpo"><button type="button" class="a-t" data-az="modifica">${esc(a.testo)}</button><span class="a-meta">${a.chi}, ${dataBreve(a.creato)}</span></div>${elimina}</li>`;
+  }
+
+  function aggiornaComposer() {
+    document.querySelectorAll(".a-firma .tondo").forEach((b) => {
+      const on = b.dataset.chi === chiScrive;
+      b.classList.toggle("on", on);
+      b.setAttribute("aria-pressed", on);
+    });
+    $("a-aggiungi").disabled = apInvio || !chiScrive || !$("a-testo").value.trim();
+  }
+
+  /* Mentre si corregge un appunto l'elenco non si ridisegna, altrimenti l'aggiornamento automatico cancellerebbe quello che si sta scrivendo. */
+  function disegnaAppunti() {
+    aggiornaComposer();
+    if (apModifica !== null && appunti.some((a) => a.id === apModifica) && document.querySelector(".a-edit")) return;
+    const aperti = appunti.filter((a) => !a.fatto), fatti = appunti.filter((a) => a.fatto);
+    $("a-lista").innerHTML = aperti.map(rigaAppunto).join("");
+    $("a-fatti").innerHTML = fatti.map(rigaAppunto).join("");
+    $("a-fatti-n").textContent = fatti.length;
+    $("a-fatti-box").hidden = fatti.length === 0;
+    $("a-vuoto").hidden = !apCaricati || aperti.length > 0;
+  }
+
+  async function caricaAppunti() {
+    const n = ++giro;
+    try {
+      const r = await api("studio_appunti_leggi", { p_token: token });
+      if (n !== giro) return;
+      if (!r.ok) {
+        if (r.motivo === "sessione") return sessioneScaduta();
+        throw new Error(r.motivo);
+      }
+      appunti = r.appunti;
+      apCaricati = true;
+      avviso("");
+      if (modo === "appunti") disegnaAppunti();
+    } catch (e) {
+      if (n !== giro) return;
+      avviso(e.message === "Risposta 404" ? "La pagina Appunti non è ancora attiva sul database." : "Non riesco a leggere gli appunti. Controlla la connessione.");
+    }
+  }
+
+  async function aggiungiAppunto(ev) {
+    ev.preventDefault();
+    const testo = $("a-testo").value.trim();
+    if (!testo || !chiScrive || apInvio) return;
+    apInvio = true;
+    aggiornaComposer();
+    try {
+      const r = await api("studio_appunti_scrivi", { p_token: token, p_testo: testo, p_chi: chiScrive });
+      if (r.ok) {
+        $("a-testo").value = "";
+        await caricaAppunti();
+      } else if (r.motivo === "sessione") {
+        sessioneScaduta();
+      } else {
+        avviso("Appunto non salvato: il testo non è valido.");
+      }
+    } catch {
+      avviso("Appunto non salvato: controlla la connessione e riprova.");
+    }
+    apInvio = false;
+    aggiornaComposer();
+  }
+
+  /* Risponde true se la modifica è andata a buon fine. */
+  async function cambiaAppunto(a, azione, testo = null) {
+    try {
+      const r = await api("studio_appunti_cambia", { p_token: token, p_id: a.id, p_azione: azione, p_testo: testo, p_versione: a.versione });
+      if (r.ok) return true;
+      if (r.motivo === "sessione") { sessioneScaduta(); return false; }
+      await caricaAppunti();
+      avviso(r.motivo === "conflitto" ? "Nel frattempo questo appunto è cambiato. Controllalo e, se serve, riprova." : "Modifica non salvata: il testo non è valido.");
+    } catch {
+      await caricaAppunti();
+      avviso("Modifica non salvata: controlla la connessione e riprova.");
+    }
+    return false;
+  }
+
+  async function azioneAppunto(e) {
+    const b = e.target.closest("[data-az]");
+    if (!b) return;
+    const li = b.closest(".ap");
+    const a = appunti.find((x) => x.id === Number(li.dataset.id));
+    if (!a) return;
+    const az = b.dataset.az;
+    if (az === "modifica") {
+      apModifica = a.id;
+      apElimina = null;
+      document.querySelectorAll(".a-edit").forEach((x) => x.remove());
+      disegnaAppunti();
+      const campo = document.querySelector(".a-campo");
+      if (campo) { campo.focus(); campo.setSelectionRange(campo.value.length, campo.value.length); }
+    } else if (az === "annulla") {
+      apModifica = null;
+      document.querySelector(".a-edit")?.remove();
+      disegnaAppunti();
+    } else if (az === "salva") {
+      const testo = li.querySelector(".a-campo").value.trim();
+      if (!testo) return;
+      const fatto = await cambiaAppunto(a, "testo", testo);
+      apModifica = null;
+      document.querySelector(".a-edit")?.remove();
+      disegnaAppunti();
+      if (fatto) await caricaAppunti();
+    } else if (az === "spunta") {
+      const azione = a.fatto ? "riapri" : "fatto";
+      a.fatto = !a.fatto;
+      giro++;
+      disegnaAppunti();
+      if (await cambiaAppunto(a, azione)) await caricaAppunti();
+    } else if (az === "elimina") {
+      if (apElimina !== a.id) {
+        apElimina = a.id;
+        disegnaAppunti();
+        return;
+      }
+      apElimina = null;
+      if (await cambiaAppunto(a, "elimina")) await caricaAppunti();
+    }
   }
 
   /* ---- Il foglio del giorno ---- */
@@ -632,6 +855,15 @@ button:disabled{cursor:default}
   $("oggi").addEventListener("click", vaiAOggi);
   $("v-mese").addEventListener("click", () => cambiaModo("mese"));
   $("v-sett").addEventListener("click", () => cambiaModo("settimana"));
+  $("v-app").addEventListener("click", () => cambiaModo("appunti"));
+  $("a-form").addEventListener("submit", aggiungiAppunto);
+  $("a-testo").addEventListener("input", aggiornaComposer);
+  $("appunti").addEventListener("click", azioneAppunto);
+  document.querySelectorAll(".a-firma .tondo").forEach((b) => b.addEventListener("click", () => {
+    chiScrive = b.dataset.chi;
+    try { localStorage.setItem(K_CHI, chiScrive); } catch {}
+    aggiornaComposer();
+  }));
   window.addEventListener("resize", adattaTitolo);
   document.fonts?.ready.then(adattaTitolo);
   $("riprova").addEventListener("click", carica);
